@@ -1,7 +1,7 @@
 from datetime import datetime
-from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm ,Form
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField,BooleanField
-from wtforms.validators import DataRequired, AnyOf, URL,ValidationError,Length
+from wtforms.validators import DataRequired, AnyOf, URL,ValidationError,Length,Regexp
 import re
 
 state_list = [
@@ -77,8 +77,15 @@ genres_list = [
             ('Reggae', 'Reggae'),
             ('Rock n Roll', 'Rock n Roll'),
             ('Soul', 'Soul'),
+            ('Swing', 'Swing'),
             ('Other', 'Other'),
         ]
+
+def validate_genres(form, field):
+    genres_values = [choice[1] for choice in genres_list]
+    for value in field.data:
+        if value not in genres_values:
+            raise ValidationError('Invalid genres value.')
 class ShowForm(FlaskForm):
     artist_id = StringField(
         'artist_id'
@@ -93,15 +100,17 @@ class ShowForm(FlaskForm):
     )
 
 class VenueForm(FlaskForm):
+
     name = StringField('name', validators=[DataRequired()])
     city = StringField('city', validators=[DataRequired()])
     state = SelectField('state', validators=[DataRequired()],choices = state_list)
     address = StringField('address', validators=[DataRequired()])
-    phone = StringField('phone')
+    phone = StringField('phone',[Regexp("[0-9]{3}-[0-9]{3}-[0-9]{4}$",0,"Invalid phone number.")])
+
     image_link = StringField('image_link')
     genres = SelectMultipleField(
         # TODO implement enum restriction
-        'genres', validators=[DataRequired()],
+        'genres', validators=[DataRequired(),validate_genres],
         choices=genres_list
     )
     facebook_link = StringField('facebook_link', validators=[URL()])
@@ -137,5 +146,9 @@ class ArtistForm(FlaskForm):
         # TODO implement enum restriction
         'facebook_link', validators=[URL()]
     )
-
+    website_link = StringField(
+        'website_link', validators=[URL()]
+    )
+    seeking_venue = BooleanField('seeking_venue',default=False)
+    seeking_description = StringField('seeking_description', validators=[Length(max=500)])
 # TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM
