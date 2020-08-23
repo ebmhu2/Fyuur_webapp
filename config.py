@@ -9,4 +9,4 @@ DEBUG = True
 # Connect to the database
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 # DONE IMPLEMENT DATABASE URL
-SQLALCHEMY_DATABASE_URI = 'postgres+psycopg2://mahmoud:post_Mah@localhost:5432/fyuur_db'
+SQLALCHEMY_DATABASE_URI = 'postgres+psycopg2://mahmoud:post_Mah@localhost:5432/fyuur_db2'

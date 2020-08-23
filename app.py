@@ -53,7 +53,7 @@ class Venue(db.Model):
     seeking_talent = db.Column(db.Boolean, default=False)
     seeking_description = db.Column(db.String(200))
     artists = db.relationship("Artist", secondary=Shows,
-                              backref=db.backref('Venue'), lazy=True)
+                              backref=db.backref('Venue',cascade="all,delete"), lazy=True)
     def __repr__(self):
         return f'<Venue {self.id} {self.name}'
 
@@ -74,7 +74,6 @@ class Artist(db.Model):
     website_link = db.Column(db.String(200))
     seeking_venue = db.Column(db.Boolean, default=False)
     seeking_description = db.Column(db.String(200))
-    venues = db.relationship("Venue", secondary=Shows, backref="Artist", lazy=True)
 
     def __repr__(self):
         return f'<Artist {self.id} {self.name}'
@@ -117,7 +116,7 @@ def venues():
     #  num_shows should be aggregated based on number of upcoming shows per venue.
     data = []
     try:
-        venues = Venue.query.order_by(Venue.id).all()
+        venues = Venue.query.distinct(Venue.city, Venue.state).all()
         if venues:
             for venue in venues:
                 try:
@@ -172,32 +171,43 @@ def search_venues():
     # seach for Hop should return "The Musical Hop".
     # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
     search_term = request.form.get("search_term", "")
-    search_response = Venue.query.filter(Venue.name.ilike(f"%{search_term}%")).all()
+    search_name = Venue.query.filter(Venue.name.ilike(f"%{search_term}%")).all()
     data = []
-    for venue in search_response:
-        data.append({
-            "id": venue.id,
-            "name": venue.name,
-            "num_upcoming_shows": len(Venue.query.join(Shows).filter(Shows.c.start_time > datetime.utcnow(),
-                                                                     Shows.c.venue_id == venue.id).all())
-        })
+    if search_term: # use logic to prevent search on empty search term
+        # we suggest if user want to search with venue name he use one string without comma
+        # if user use comma to sparate city and state for search
+        if search_term.find(',') == -1:  # one string
+            # case 1 user use one string to search with venue name
+            for venue in search_name:
+                data.append({
+                    "id": venue.id,
+                    "name": venue.name,
+                    "num_upcoming_shows": len(Venue.query.join(Shows).filter(Shows.c.start_time > datetime.utcnow(),
+                                                                             Shows.c.venue_id == venue.id).all())
+                })
+        else: # 2 string    City, state
+            # case 2 user use two string separated by comma to search with city, state
+            # use strip to remove white spaces
+            search_term1 = search_term.split(',')[0].strip() # city
+            search_term2 = search_term.split(',')[1].strip()  # state
+            search_city_state = Venue.query.filter(Venue.city.ilike(f"%{search_term1}%"),Venue.state.ilike(f"%{search_term2}%")).all()
+            for venue in search_city_state:
+                data.append({
+                    "id": venue.id,
+                    "name": venue.name,
+                    "num_upcoming_shows": len(Venue.query.join(Shows).filter(Shows.c.start_time > datetime.utcnow(),
+                                                                             Shows.c.venue_id == venue.id).all())
+                })
 
+    else:
+        data=[]
 
     response = {
-        "count": len(search_response),
+        "count": len(data),
         "data": data
     }
-    # response = {
-    #     "count": 1,
-    #     "data": [{
-    #         "id": 2,
-    #         "name": "The Dueling Pianos Bar",
-    #         "num_upcoming_shows": 0,
-    #     }]
-    # }
     return render_template('pages/search_venues.html', results=response,
                            search_term=search_term)
-
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
@@ -424,28 +434,42 @@ def search_artists():
     # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
     # search for "band" should return "The Wild Sax Band".
     search_term = request.form.get('search_term', '')
-    search = Artist.query.filter(Artist.name.ilike(f"%{search_term}%")).all()
+    search_name = Artist.query.filter(Artist.name.ilike(f"%{search_term}%")).all()
     data = []
-    for artist in search:
-        data.append({
-            "id": artist.id,
-            "name": artist.name,
-            "num_upcoming_shows": len(Artist.query.join(Shows).filter(Shows.c.start_time > datetime.now(),
-                                                                      Shows.c.artist_id == artist.id).all())
-        })
+    if search_term: # use logic to prevent search on empty search term
+        # we suggest if user want to search with artist name he use one string without comma
+        # if user use comma to sparate city and state for search
+        if search_term.find(',') == -1:  # one string
+            # case 1 user use one string to search with artist name
+            for artist in search_name:
+                data.append({
+                    "id": artist.id,
+                    "name": artist.name,
+                    "num_upcoming_shows": len(Artist.query.join(Shows).filter(Shows.c.start_time > datetime.now(),
+                                                                              Shows.c.artist_id == artist.id).all())
+                })
+
+        else: # 2 string    City, state
+            # case 2 user use two string separated by comma to search with city, state
+            # use strip to remove white spaces
+            search_term1 = search_term.split(',')[0].strip() # city
+            search_term2 = search_term.split(',')[1].strip()  # state
+            search_city_state = Artist.query.filter(Artist.city.ilike(f"%{search_term1}%"),Artist.state.ilike(f"%{search_term2}%")).all()
+            for artist in search_city_state:
+                data.append({
+                    "id": artist.id,
+                    "name": artist.name,
+                    "num_upcoming_shows": len(Artist.query.join(Shows).filter(Shows.c.start_time > datetime.now(),
+                                                                              Shows.c.artist_id == artist.id).all())
+                })
+
+    else:
+        data=[]
 
     response = {
-        "count": len(search),
+        "count": len(data),
         "data": data
     }
-    # response = {
-    #     "count": 1,
-    #     "data": [{
-    #         "id": 4,
-    #         "name": "Guns N Petals",
-    #         "num_upcoming_shows": 0,
-    #     }]
-    # }
     return render_template('pages/search_artists.html', results=response,
                            search_term=request.form.get('search_term', ''))
 
@@ -731,8 +755,8 @@ def create_artist_form():
 @app.route('/artists/create', methods=['POST'])
 def create_artist_submission():
     # called upon submitting the new artist listing form
-    # TODO: insert form data as a new Venue record in the db, instead
-    # TODO: modify data to be the data object returned from db insertion
+    # Done: insert form data as a new Venue record in the db, instead
+    # Done: modify data to be the data object returned from db insertion
     error = False
     form = ArtistForm()
     if form.validate_on_submit():
@@ -769,7 +793,7 @@ def create_artist_submission():
 @app.route('/shows')
 def shows():
     # displays list of shows at /shows
-    # TODO: replace with real venues data.
+    # Done: replace with real venues data.
     #       num_shows should be aggregated based on number of upcoming shows per venue.
     data = []
     try:
@@ -839,7 +863,7 @@ def create_shows():
 @app.route('/shows/create', methods=['POST'])
 def create_show_submission():
     # called to create new shows in the db, upon submitting new show listing form
-    # TODO: insert form data as a new Show record in the db, instead
+    # Done: insert form data as a new Show record in the db, instead
     form = ShowForm()
     if form.validate_on_submit():
         show = Shows.insert().values(artist_id=form.artist_id.data,venue_id=form.venue_id.data ,start_time=form.start_time.data)
