@@ -83,17 +83,9 @@ genres_list = [
 
 
 class ShowForm(FlaskForm):
-    artist_id = StringField(
-        'artist_id'
-    )
-    venue_id = StringField(
-        'venue_id'
-    )
-    start_time = DateTimeField(
-        'start_time',
-        validators=[DataRequired()],
-        default= datetime.today()
-    )
+    artist_id = StringField('artist_id',validators=[DataRequired()])
+    venue_id = StringField('venue_id',validators=[DataRequired()])
+    start_time = DateTimeField('start_time',validators=[DataRequired()],default= datetime.today())
 
 
 class VenueForm(FlaskForm):
