@@ -1,16 +1,22 @@
 {% extends 'layouts/main.html' %}
 {% block title %}Fyyur | Artists{% endblock %}
 {% block content %}
-<ul class="items">
-	{% for artist in artists %}
-	<li>
-		<a href="/artists/{{ artist.id }}">
-			<i class="fas fa-users"></i>
-			<div class="item">
-				<h5>{{ artist.name }}</h5>
-			</div>
-		</a>
-	</li>
-	{% endfor %}
-</ul>
+    <ul class="items" style="max-width: 500px">
+        {% for artist in artists %}
+            <li>
+                <a style="display: inline-block !important;" href="/artists/{{ artist.id }}">
+                    <i class="fas fa-users"></i>
+                    <div class="item" style="display: inline-block">
+                        <h5>{{ artist.name }}</h5>
+                    </div>
+                </a>
+
+                <button  data-id="{{ artist.id }}" class="delete-button artist-delete" style="display: inline-block !important;"
+                  >&#9587;
+                </button>
+             <a class="edit-button" style="display: inline-block !important;"
+                   href="{{ url_for('edit_artist', artist_id=artist.id) }}"><i class="fa fa-pen"></i></a>
+            </li>
+        {% endfor %}
+    </ul>
 {% endblock %}

@@ -209,3 +209,26 @@ h2.monospace {
 .subtitle {
   opacity: 0.5;
 }
+
+.edit-button:hover,.delete-button :hover{
+    color:orange;
+}
+.delete-button, .edit-button {
+    -webkit-appearance: none;
+   border: none;
+    outline: none;
+    float: right;
+}
+
+li button {
+        -webkit-appearance: none;
+        border: none;
+        outline: none;
+        color: red;
+        float: right;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: bold;
+        background-color: white;
+        padding: 5px;
+      }
