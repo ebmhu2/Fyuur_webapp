@@ -110,10 +110,11 @@
 </div>
 
 <div id="footer">
-    <div class="container">
-        <p>Fyyur &copy; All Rights Reserved.</p>
-        {% block footer %}{% endblock %}
-    </div>
+    {% block footer %}
+        <div class="container">
+            <p>Fyyur &copy; All Rights Reserved.</p>
+        </div>
+    {% endblock %}
 </div>
 
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -132,7 +133,7 @@
             fetch('/artists/' + artistId + '/', {
                 method: 'DELETE'
             }).then(function (res) {
-              window.location.reload(true);
+                window.location.reload(true);
             })
                 .catch(function (e) {
                     console.error(e);
@@ -148,10 +149,10 @@
             e.preventDefault();
             console.log("Delete event: ", e);
             const venueId = e.target.dataset.id;
-            fetch('/venues/' + venueId +'/' , {
+            fetch('/venues/' + venueId + '/', {
                 method: 'DELETE'
             }).then(function (res) {
-              window.location.reload(true);
+                window.location.reload(true);
             })
                 .catch(function (e) {
                     console.error(e);

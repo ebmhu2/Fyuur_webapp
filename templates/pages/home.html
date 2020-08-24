@@ -1,25 +1,71 @@
 {% extends 'layouts/main.html' %}
 {% block title %}Fyyur{% endblock %}
 {% block content %}
-<div class="row">
-	<div class="col-sm-6">
-		<h1>Fyyur 🔥</h1>
-		<p class="lead">Where musical artists meet musical venues.</p>
-		<h3>
-			<a href="/venues"><button class="btn btn-primary btn-lg">Find a venue</button></a>
-			<a href="/venues/create"><button class="btn btn-default btn-lg">Post a venue</button></a>
-		</h3>
-		<h3>
-			<a href="/artists"><button class="btn btn-primary btn-lg">Find an artist</button></a>
-			<a href="/artists/create"><button class="btn btn-default btn-lg">Post an artist</button></a>
-		</h3>
-		<p class="lead">Publicize about your show for free.</p>
-		<h3>
-			<a href="/shows/create"><button class="btn btn-default btn-lg">Post a show</button></a>
-		</h3>
-	</div>
-	<div class="col-sm-6 hidden-sm hidden-xs">
-		<img id="front-splash" src="{{ url_for('static',filename='img/front-splash.jpg') }}" alt="Front Photo of Musical Band" />
-	</div>
-</div>
+    <div class="row" style="height:1000px">
+        <div class="col-sm-6">
+            <h1>Fyyur 🔥</h1>
+            <p class="lead">Where musical artists meet musical venues.</p>
+            <h3>
+                <a href="/venues">
+                    <button class="btn btn-primary btn-lg">Find a venue</button>
+                </a>
+                <a href="/venues/create">
+                    <button class="btn btn-default btn-lg">Post a venue</button>
+                </a>
+            </h3>
+            <h3>
+                <a href="/artists">
+                    <button class="btn btn-primary btn-lg">Find an artist</button>
+                </a>
+                <a href="/artists/create">
+                    <button class="btn btn-default btn-lg">Post an artist</button>
+                </a>
+            </h3>
+            <p class="lead">Publicize about your show for free.</p>
+            <h3>
+                <a href="/shows/create">
+                    <button class="btn btn-default btn-lg">Post a show</button>
+                </a>
+            </h3>
+        </div>
+        <div class="col-sm-6 hidden-sm hidden-xs">
+            <img id="front-splash" src="{{ url_for('static',filename='img/front-splash.jpg') }}"
+                 alt="Front Photo of Musical Band"/>
+        </div>
+        <!-- show recent venues -->
+        <div class="col-sm-12 hidden-sm hidden-xs">
+        <hr style="width:100%;">
+            <h3>Recent Venues</h3>
+            {% for venue in recent_venues %}
+                <div class="col-sm-3" style=" height: 100px;">
+                    <div class="tile tile-show" style="height: 200px !important;">
+                        <img src="{{ venue.image_link }}" alt="venue Image" width="120px" height="100px"/>
+                        <p>id: {{ venue.id }}</p>
+                        <p><i class="fas fa-music"></i><a href="/venues/{{ venue.id }}">{{ venue.name }}</a></p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- show recent Artists -->
+        <div class="col-sm-12 hidden-sm hidden-xs" style="margin-top: 120px;">
+        <hr style="width:100%;">
+            <h3>Recent Artists</h3>
+            {% for artist in recent_artists %}
+                <div class="col-sm-3" style=" height: 100px;">
+                    <div class="tile tile-show" style="height: 200px !important;">
+                        <img src="{{ artist.image_link }}" alt="artist Image" width="120px" height="100px"/>
+                        <p>id: {{ artist.id }}</p>
+                        <p><i class="fas fa-users"></i><a href="/artists/{{ artist.id }}">{{ artist.name }}</a></p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}
+{% block footer %}
+    <div class="container">
+        <p>Fyyur &copy; All Rights Reserved.</p>
+    </div>
 {% endblock %}
